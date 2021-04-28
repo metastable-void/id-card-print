@@ -135,7 +135,7 @@ const renderCards = () => {
     const cardFaceDateElement = cardFaceElement.querySelector('.card-date');
     const d = new Date;
     const year = d.getFullYear().toString();
-    const month = ('-' + d.getMonth().toString()).slice(-2);
+    const month = ('-' + (d.getMonth() + 1).toString()).slice(-2);
     const date = ('-' + d.getDate().toString()).slice(-2);
     cardFaceDateElement.textContent = `${year}. ${month}. ${date}`;
     const count = 0 | document.querySelector('#create-card-number').value;
