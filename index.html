@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<title>IDカード印刷</title>
+<style>
+body {
+    margin: 0;
+    font-kerning: normal;
+    font-optical-sizing: none;
+    font-synthesis: none;
+}
+
+.card > svg {
+    display: block;
+    outline: none !important;
+    border: none !important;
+}
+
+.card {
+    inline-size: max-content;
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+.card:not(:last-child) {
+    break-after: page;
+}
+
+.card-number {
+    font-family: 'Kikai Chokoku JIS';
+    text-transform: uppercase;
+    font-kerning: normal;
+}
+
+.card-title {
+    font-family: 'Frutiger LT Pro', 'A-OTF UD Shin Go Pr6N';
+    font-weight: 500;
+    font-kerning: normal;
+}
+
+.card-description {
+    font-family: 'Frutiger LT Pro', 'A-OTF UD Shin Go Pr6N';
+    font-weight: normal;
+    font-size: 2px;
+    line-height: 1.5;
+    text-align: justify;
+    font-kerning: normal;
+}
+
+.card-address, .card-text {
+    font-family: 'Frutiger LT Pro', 'A-OTF UD Shin Go Pr6N';
+    font-weight: normal;
+    font-kerning: normal;
+}
+
+.card-logotype {
+    font-family: 'Fira Sans';
+    font-weight: 400;
+}
+
+@page {
+    margin: 0;
+    size: 87.6mm 56mm;
+}
+
+@media screen {
+    .card {
+        box-shadow: 0 0 .5rem rgba(0, 0, 0, 0.5);
+        margin: 1rem;
+        border-radius: 3mm;
+        overflow: hidden;
+    }
+}
+
+@media print {
+    header {
+        display: none;
+    }
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<script src="./es-first-aid.js"></script>
+<template id="template-card-face">
+<div class="card">
+<svg xmlns="http://www.w3.org/2000/svg" class="card-svg" lang="ja" viewBox="0 0 87.6 56" width="87.6mm" height="56mm">
+<rect class="card-bg" x="0" y="0" width="87.6" height="56" fill="#eee" stroke="none"/>
+<circle cx="125" cy="80" r="120" fill="none" stroke="#5eaf30" stroke-width="30"/>
+<path class="arrow" d="M 4,4 l 1.5,-1 v .5 h 3 v .5 z" fill="#5eaf30" stroke="none"/>
+<text class="card-text card-name" x="65" y="52" font-size="4" fill="#5eaf30" stroke="none"><tspan font-weight="300">XIRUX</tspan><tspan font-weight="600">IC</tspan></text>
+<text class="card-text card-logotype" x="60" y="8" font-size="4" fill="#000" stroke="none">Menhera<tspan fill="#5eaf30">.org</tspan></text>
+<text class="card-text" x="7" y="45" font-size="2.5" fill="#024059" stroke="none">Signature 自署</text>
+<text class="card-date card-text" x="7" y="50" font-size="2.5" fill="#024059" stroke="none"></text>
+</svg>
+</div>
+</template>
+<template id="template-card">
+<div class="card">
+<svg xmlns="http://www.w3.org/2000/svg" class="card-svg" lang="ja" viewBox="0 0 87.6 56" width="87.6mm" height="56mm">
+<rect class="card-bg" x="0" y="0" width="87.6" height="56" fill="#eee" stroke="none"/>
+<rect x="59.5" y="0" width="5" height="6.3" fill="#000" stroke="none"/>
+<rect x="70" y="0" width="8" height="6.3" fill="#000" stroke="none"/>
+<image class="card-qr" x="66" y="31" width="15" height="15"/>
+<rect class="card-number-bg" x="37.6" y="48" width="51" height="8" fill="#000" stroke="none"/>
+<text class="card-title" x="43.8" y="10" text-anchor="middle" fill="#000" stroke="none" font-size="3"><tspan font-weight="300">XIRUX</tspan><tspan font-weight="600">IC</tspan> ご利用案内</text>
+<foreignObject x="7" y="11" width="73.6" height="16">
+<div class="card-description" xmlns="http://www.w3.org/1999/xhtml" lang="ja">●本カードは他のICカード類と互換性がありません。●特に認められた場合を除き、本カードは譲渡、貸与等できません。その他、本カードにかかわる事項は本機構が定める規定によります。●本カードに金銭的価値はありません。●不正に使用した場合、罰せられることがあります。紛失した場合、ただちに連絡してください。</div>
+</foreignObject>
+<text class="card-address" x="7" y="45" font-size="2.5" fill="#000" stroke="none">生活情報基盤研究機構 Menhera.org</text>
+<text class="card-number" x="39" y="53" font-size="3.5" fill="#fff" stroke="none"></text>
+</svg>
+</div>
+</template>
+</head>
+<body>
+<header>
+<h1>IDカード印刷</h1>
+<p><label>枚数： <input id="create-card-number" type="number" min="1" step="1" value="1"/></label></p>
+<p><button id="create-card">カード作成</button></p>
+</header>
+<main id="cards"></main>
+<script>
+const cardsContainer = document.querySelector('#cards');
+
+/** @type {HTMLTemplateElement} */
+const cardTemplate = document.querySelector('#template-card');
+
+/** @type {HTMLTemplateElement} */
+const cardFaceTemplate = document.querySelector('#template-card-face');
+
+const renderCards = () => {
+    cardsContainer.textContent = '';
+    const cardFaceElement = cardFaceTemplate.content.querySelector('.card').cloneNode(true);
+    cardsContainer.append(cardFaceElement);
+    const cardFaceDateElement = cardFaceElement.querySelector('.card-date');
+    const d = new Date;
+    const year = d.getFullYear().toString();
+    const month = ('-' + d.getMonth().toString()).slice(-2);
+    const date = ('-' + d.getDate().toString()).slice(-2);
+    cardFaceDateElement.textContent = `${year}. ${month}. ${date}`;
+    const count = 0 | document.querySelector('#create-card-number').value;
+    for (let i = 0; i < count; i++) {
+        const cardElement = cardTemplate.content.querySelector('.card').cloneNode(true);
+        cardsContainer.append(cardElement);
+        const qrImageElement = cardElement.querySelector('.card-qr');
+        const cardNumberElement = cardElement.querySelector('.card-number');
+        const hexId = ('' + firstAid.encodeHex(firstAid.randomFill(new Uint8Array(8)))).toUpperCase();
+        const hexIdParts = [
+            hexId.slice(0, 4),
+            hexId.slice(4, 8),
+            hexId.slice(8, 12),
+            hexId.slice(12, 16),
+        ];
+        cardNumberElement.textContent = hexIdParts.join(' ');
+        const qr = new QRious({
+            value: hexId,
+            size: 1000,
+            backgroundAlpha: 0,
+        });
+        const dataUrl = qr.toDataURL();
+        //console.log('qr:', dataUrl);
+        qrImageElement.setAttribute('href', dataUrl);
+    }
+};
+
+document.querySelector('#create-card').addEventListener('click', ev => void renderCards());
+
+</script>
+</body>
+</html>
