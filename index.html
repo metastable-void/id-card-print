@@ -94,6 +94,30 @@ body {
 </svg>
 </div>
 </template>
+<template id="template-card-face-staff">
+<div class="card">
+<svg xmlns="http://www.w3.org/2000/svg" class="card-svg" lang="ja" viewBox="0 0 87.6 56" width="87.6mm" height="56mm">
+<rect class="card-bg" x="0" y="0" width="87.6" height="56" fill="#eee" stroke="none"/>
+<path class="arrow" d="M 4,4 l 1.5,-1 v .5 h 3 v .5 z" fill="#5eaf30" stroke="none"/>
+<path class="line" d="M 7,15 h 50" fill="none" stroke="#024059" stroke-width="0.5"/>
+<text class="card-text" x="7" y="12" font-size="4" fill="#024059" stroke="none">Staff 職員証</text>
+<text class="card-text card-name" x="65" y="52" font-size="4" fill="#5eaf30" stroke="none"><tspan font-weight="300">XIRUX</tspan><tspan font-weight="600">IC</tspan></text>
+<text class="card-text card-logotype" x="60" y="8" font-size="4" fill="#000" stroke="none">Menhera<tspan fill="#5eaf30">.org</tspan></text>
+<text class="card-text" x="7" y="22" font-size="2.5" fill="#024059" stroke="none">Signature 自署</text>
+<text class="card-text" x="7" y="29" font-size="2.5" fill="#024059" stroke="none">DOB 生年月日 　　　　　　　　/　　　　/</text>
+<text class="card-text" x="7" y="35" font-size="2.5" fill="#024059" stroke="none">上記の者が本機構の職員・役員であることを証する。</text>
+<path class="card-stamp-border" d="M 69,35 v 8 h 8 v -8 z" fill="none" stroke="#f00" stroke-width=".3" stroke-opacity=".5"/>
+<g font-weight="500" fill="#f00" fill-opacity=".5" stroke="none" font-size="1.7">
+<text class="card-stamp-text card-text" x="69.5" y="37">生活情報</text>
+<text class="card-stamp-text card-text" x="69.5" y="39.5">基盤研究</text>
+<text class="card-stamp-text card-text" x="69.5" y="42">機構印</text>
+</g>
+<text class="card-text" x="70" y="40" text-anchor="end" font-size="2.5" fill="#024059" stroke="none" stroke-opacity=".75">生活情報基盤研究機構</text>
+<text class="card-text" x="7" y="45" font-size="2.5" fill="#024059" stroke="none">職員証番号は裏面記載</text>
+<text class="card-date card-text" x="7" y="50" font-size="2.5" fill="#024059" stroke="none"></text>
+</svg>
+</div>
+</template>
 <template id="template-card">
 <div class="card">
 <svg xmlns="http://www.w3.org/2000/svg" class="card-svg" lang="ja" viewBox="0 0 87.6 56" width="87.6mm" height="56mm">
@@ -116,6 +140,7 @@ body {
 <header>
 <h1>IDカード印刷</h1>
 <p><label>枚数： <input id="create-card-number" type="number" min="1" step="1" value="1"/></label></p>
+<p><label>種別： <select id="create-card-type"><option value="0">利用者証 User ID</option><option value="1">職員証 Staff ID</option></select></label></p>
 <p><button id="create-card">カード作成</button></p>
 </header>
 <main id="cards"></main>
@@ -126,10 +151,17 @@ const cardsContainer = document.querySelector('#cards');
 const cardTemplate = document.querySelector('#template-card');
 
 /** @type {HTMLTemplateElement} */
-const cardFaceTemplate = document.querySelector('#template-card-face');
+const cardFaceUserTemplate = document.querySelector('#template-card-face');
+
+/** @type {HTMLTemplateElement} */
+const cardFaceStaffTemplate = document.querySelector('#template-card-face-staff');
+
+/** @type {HTMLSelectElement} */
+const createCardTypeElement = document.querySelector('#create-card-type');
 
 const renderCards = () => {
     cardsContainer.textContent = '';
+    const cardFaceTemplate = createCardTypeElement.value == 1 ? cardFaceStaffTemplate : cardFaceUserTemplate;
     const cardFaceElement = cardFaceTemplate.content.querySelector('.card').cloneNode(true);
     cardsContainer.append(cardFaceElement);
     const cardFaceDateElement = cardFaceElement.querySelector('.card-date');
